@@ -86,6 +86,14 @@ class SalesSiteTests(unittest.TestCase):
                 for link in parser.links
             )
         )
+        self.assertTrue(
+            any(
+                link.startswith(
+                    "mailto:andudyun0504@gmail.com?subject=USD%20250%20Agent%20Eval%20Task%20Pack"
+                )
+                for link in parser.links
+            )
+        )
         self.assertIn("Billing contact", text)
 
     def test_policy_pages_cover_paddle_review_requirements(self):
