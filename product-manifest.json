@@ -1,0 +1,23 @@
+{
+  "artifact": "agent-eval-kit-1.0.0.pyz",
+  "build_tests": 12,
+  "license_options": [
+    {
+      "internal_users": 25,
+      "name": "Team License",
+      "price_usd": 1000
+    },
+    {
+      "internal_users": 1,
+      "name": "Individual License",
+      "price_usd": 250
+    }
+  ],
+  "network_access": false,
+  "product": "Agent Eval Kit",
+  "product_type": "downloadable_software",
+  "runtime": "Python 3.11+",
+  "sha256": "71580501a6004ae63e2443a5b8bac61dd84411b3dccdd5ad532f002e45e515d7",
+  "telemetry": false,
+  "version": "1.0.0"
+}

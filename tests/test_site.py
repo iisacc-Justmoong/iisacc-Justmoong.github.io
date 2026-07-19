@@ -1,3 +1,4 @@
+import json
 import unittest
 from html.parser import HTMLParser
 from pathlib import Path
@@ -46,34 +47,44 @@ def parse(page_name):
 
 
 class SalesSiteTests(unittest.TestCase):
-    def test_root_presents_two_fixed_scope_services_and_public_evidence(self):
-        source, parser, text = parse("index.html")
+    def test_root_presents_downloadable_software_and_two_licenses(self):
+        _, parser, text = parse("index.html")
 
         for phrase in (
-            "Independent Agent Evaluation",
+            "Downloadable B2B software",
+            "Agent Eval Kit Team License",
             "USD 1,000",
-            "48 hours",
+            "25 internal users",
+            "Agent Eval Kit Individual License",
             "USD 250",
-            "6 hours",
-            "Cleared payment",
-            "Public evidence",
+            "one internal user",
+            "Version 1.0.0",
+            "Perpetual internal-use license",
+            "No consulting",
+            "No custom development",
+            "71580501a6004ae63e2443a5b8bac61dd84411b3dccdd5ad532f002e45e515d7",
         ):
             self.assertIn(phrase, text)
 
         self.assertIn(
-            "https://iisacc-justmoong.github.io/agent-task-verifier-sample/offer.html",
+            "https://github.com/iisacc-Justmoong/agent-task-verifier-sample",
             parser.links,
         )
-        self.assertIn(
-            "https://iisacc-justmoong.github.io/agent-task-verifier-sample/task-pack.html",
-            parser.links,
+        self.assertIn("product-manifest.json", parser.links)
+        manifest = json.loads((ROOT / "product-manifest.json").read_text(encoding="utf-8"))
+        self.assertEqual("downloadable_software", manifest["product_type"])
+        self.assertEqual("1.0.0", manifest["version"])
+        self.assertEqual("agent-eval-kit-1.0.0.pyz", manifest["artifact"])
+        self.assertEqual(
+            "71580501a6004ae63e2443a5b8bac61dd84411b3dccdd5ad532f002e45e515d7",
+            manifest["sha256"],
         )
         stylesheet = (ROOT / "styles.css").read_text(encoding="utf-8")
         self.assertIn("styles.css", parser.links)
         self.assertIn("overflow-wrap: anywhere", stylesheet)
         self.assertIn("minmax(0, 1fr)", stylesheet)
 
-    def test_root_exposes_local_commercial_policies_and_email_intake(self):
+    def test_root_exposes_local_commercial_policies_and_purchase_intake(self):
         _, parser, text = parse("index.html")
 
         for link in ("terms.html", "privacy.html", "refunds.html"):
@@ -81,7 +92,7 @@ class SalesSiteTests(unittest.TestCase):
         self.assertTrue(
             any(
                 link.startswith(
-                    "mailto:andudyun0504@gmail.com?subject=Independent%20Agent%20Evaluation"
+                    "mailto:andudyun0504@gmail.com?subject=Agent%20Eval%20Kit%20Team%20License"
                 )
                 for link in parser.links
             )
@@ -89,31 +100,31 @@ class SalesSiteTests(unittest.TestCase):
         self.assertTrue(
             any(
                 link.startswith(
-                    "mailto:andudyun0504@gmail.com?subject=USD%20250%20Agent%20Eval%20Task%20Pack"
+                    "mailto:andudyun0504@gmail.com?subject=Agent%20Eval%20Kit%20Individual%20License"
                 )
                 for link in parser.links
             )
         )
-        self.assertIn("Billing contact", text)
+        self.assertIn("Purchasing legal entity", text)
 
-    def test_policy_pages_cover_paddle_review_requirements(self):
+    def test_policy_pages_cover_software_license_and_paddle_requirements(self):
         expectations = {
             "terms.html": (
-                "Terms of Service",
-                "Scope and acceptance criteria",
-                "Authorized code and data",
+                "Terms of Sale and Software License",
+                "Perpetual internal-use license",
+                "No professional services",
                 "Paddle",
             ),
             "privacy.html": (
                 "Privacy Notice",
                 "billing contact",
+                "No telemetry",
                 "Paddle",
-                "payment credentials",
             ),
             "refunds.html": (
                 "Refund Policy",
-                "full refund",
-                "seven calendar days",
+                "downloadable software",
+                "14 calendar days",
                 "Paddle",
             ),
         }
@@ -125,6 +136,21 @@ class SalesSiteTests(unittest.TestCase):
                     self.assertIn(phrase, text)
                 self.assertIn("index.html", parser.links)
                 self.assertIn("mailto:andudyun0504@gmail.com", parser.links)
+
+    def test_site_does_not_market_unsupported_human_services(self):
+        prohibited = (
+            "independent evaluation engineering",
+            "written scope",
+            "delivery window",
+            "custom deliverables",
+            "request the usd 1,000 audit",
+            "work third",
+        )
+        for page_name in ("index.html", "terms.html", "privacy.html", "refunds.html"):
+            with self.subTest(page=page_name):
+                source = (ROOT / page_name).read_text(encoding="utf-8").lower()
+                for phrase in prohibited:
+                    self.assertNotIn(phrase, source)
 
     def test_site_has_no_third_party_runtime_before_checkout_approval(self):
         for page_name in ("index.html", "terms.html", "privacy.html", "refunds.html"):
