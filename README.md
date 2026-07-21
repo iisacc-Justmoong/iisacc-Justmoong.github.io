@@ -1,5 +1,7 @@
 # Agent Eval Kit sales site
 
+[Review the live product and Team License](https://iisacc-justmoong.github.io/) · [Inspect the exact Version 1.0.0 walkthrough](https://iisacc-justmoong.github.io/demo.html) · [Open the one-time USD 1,000 PayPal checkout](https://www.paypal.com/ncp/payment/2SHM4XZQ8BVE2)
+
 This repository owns the root GitHub Pages host for Agent Eval Kit, downloadable offline B2B software sold under fixed Team and Individual licenses. It publishes the software release manifest and the terms, privacy, and refund pages used by supported payment processors.
 
 The site intentionally uses only static HTML and CSS. It has no package-manager dependency, analytics runtime, advertising pixel, account login, checkout script, or iframe. The Team CTA links directly to a verified one-time PayPal hosted payment page; the Individual License remains email intake. Paddle Checkout may be added after the software domain is approved and the client-side flow can be verified against an active software price.
