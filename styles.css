@@ -157,6 +157,7 @@ h3 {
 }
 
 .service-card,
+.use-case-panel,
 .evidence-panel,
 .start-gate,
 .policy-page,
@@ -165,6 +166,43 @@ h3 {
   border-radius: 24px;
   background: rgba(255, 255, 255, 0.7);
   box-shadow: 0 24px 80px rgba(63, 45, 28, 0.08);
+}
+
+.use-case-panel {
+  margin-bottom: 20px;
+  padding: clamp(28px, 6vw, 64px);
+}
+
+.use-case-intro {
+  max-width: 760px;
+}
+
+.use-case-intro > p:last-child,
+.use-case-card p {
+  color: #5f5a51;
+}
+
+.use-case-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 22px;
+  margin-block: 32px;
+}
+
+.use-case-card {
+  min-width: 0;
+  border-top: 1px solid #d0c8b8;
+  padding-top: 20px;
+}
+
+.use-case-card p {
+  margin-bottom: 0;
+}
+
+.use-case-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
 }
 
 .service-card {
@@ -328,6 +366,7 @@ ul {
 @media (max-width: 760px) {
   .site-header,
   .service-grid,
+  .use-case-grid,
   .evidence-panel,
   .gate-grid {
     display: grid;

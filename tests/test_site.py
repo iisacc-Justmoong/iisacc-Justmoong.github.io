@@ -273,12 +273,41 @@ class SalesSiteTests(unittest.TestCase):
             r"\.product-visual-image\s*\{[^}]*width:\s*100%;[^}]*height:\s*auto;",
         )
 
+    def test_root_places_verified_acceptance_scenarios_before_the_license(self):
+        source, _, text = parse("index.html")
+
+        use_case_start = source.index('<section class="shell use-case-panel"')
+        license_start = source.index('<section class="shell service-grid"')
+        self.assertLess(use_case_start, license_start)
+
+        use_case_end = source.index("</section>", use_case_start)
+        use_case_source = source[use_case_start:use_case_end]
+        for phrase in (
+            "Use it as the final acceptance gate.",
+            "before accepting an agent-produced change",
+            "Verify the recorded run against the pinned repository commit, exact command, and required checks",
+            "Re-run the same JSON contract and evidence offline",
+            "Reject a changed commit, mismatched command, or missing required check",
+            "nonzero exit and zero reward",
+            "no partial credit",
+        ):
+            self.assertIn(phrase, text)
+
+        self.assertIn('href="demo.html"', use_case_source)
+        self.assertIn(f'href="{TEAM_CHECKOUT_URL}"', use_case_source)
+
+        readme = (ROOT / "README.md").read_text(encoding="utf-8")
+        self.assertIn("final acceptance gate", readme)
+        self.assertIn("before accepting an agent-produced change", readme)
+        self.assertIn("re-run the same JSON contract and evidence offline", readme)
+        self.assertIn("nonzero exit and zero reward", readme)
+
     def test_root_exposes_local_commercial_policies_and_direct_team_checkout(self):
         _, parser, text = parse("index.html")
 
         for link in ("terms.html", "privacy.html", "refunds.html", "security.html", SBOM_FILE):
             self.assertIn(link, parser.links)
-        self.assertEqual(2, parser.links.count(TEAM_CHECKOUT_URL))
+        self.assertEqual(3, parser.links.count(TEAM_CHECKOUT_URL))
         self.assertRegex(
             TEAM_CHECKOUT_URL,
             r"^https://www\.paypal\.com/ncp/payment/[A-Z0-9]+$",
