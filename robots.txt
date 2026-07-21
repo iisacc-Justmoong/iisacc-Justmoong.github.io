@@ -1,0 +1,3 @@
+User-agent: *
+Allow: /
+Sitemap: https://iisacc-justmoong.github.io/sitemap.xml

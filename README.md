@@ -14,6 +14,19 @@ The product source, tests, and standalone build are maintained separately from t
 
 `demo.html` publishes a copyable Version 1.0.0 walkthrough generated from the reproducible release artifact: the example contract and evidence, the two exact CLI commands, the stable contract seal, all eight deterministic checks, and the final pass/reward fields. Keep it synchronized with the product examples and actual built output; do not hand-edit result values without rerunning the release archive.
 
+## IndexNow discovery signal
+
+The site exposes `https://iisacc-justmoong.github.io/85f6cd16c59495e50ef6232cdc8df61f.txt` for IndexNow ownership verification. Its 32-character value is a public ownership token, not a secret, and the root filename must always equal the file content.
+
+The IndexNow endpoint is exactly `https://api.indexnow.org/indexnow`. The one-time submission list for this update contains only these freshly updated URLs:
+
+- `https://iisacc-justmoong.github.io/`
+- `https://iisacc-justmoong.github.io/demo.html`
+
+Repeated submissions are avoided unless one of those URLs changes again. An IndexNow submission only signals discovery; it does not prove indexing or revenue.
+
+Crawler discovery is also published through `https://iisacc-justmoong.github.io/robots.txt` and `https://iisacc-justmoong.github.io/sitemap.xml`. The robots file allows all crawlers and points to the absolute sitemap URL. The sitemap lists only the root page, demo, product manifest, terms, privacy, and refunds URLs. No `lastmod` values are published because the repository does not maintain authoritative modification timestamps for these static resources.
+
 ## Verify the Team checkout
 
 The exact Team checkout URL is pinned in `tests/test_site.py`. Before publishing a URL change, verify the PayPal-hosted page directly:

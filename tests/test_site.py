@@ -2,12 +2,15 @@ import json
 import re
 import struct
 import unittest
+import xml.etree.ElementTree as ET
 from html.parser import HTMLParser
 from pathlib import Path
 
 
 ROOT = Path(__file__).resolve().parents[1]
 TEAM_CHECKOUT_URL = "https://www.paypal.com/ncp/payment/2SHM4XZQ8BVE2"
+PUBLIC_ORIGIN = "https://iisacc-justmoong.github.io"
+INDEXNOW_KEY = "85f6cd16c59495e50ef6232cdc8df61f"
 
 
 class PageParser(HTMLParser):
@@ -71,6 +74,85 @@ def contrast_ratio(first, second):
 
 
 class SalesSiteTests(unittest.TestCase):
+    def test_indexnow_ownership_key_is_unique_and_self_describing(self):
+        key_files = [
+            path
+            for path in ROOT.glob("*.txt")
+            if re.fullmatch(r"[0-9a-fA-F]{32}", path.stem)
+        ]
+
+        self.assertEqual([ROOT / f"{INDEXNOW_KEY}.txt"], key_files)
+        self.assertEqual(
+            f"{INDEXNOW_KEY}\n",
+            key_files[0].read_text(encoding="utf-8"),
+        )
+        self.assertEqual(
+            key_files[0].stem,
+            key_files[0].read_text(encoding="utf-8").strip(),
+        )
+
+    def test_readme_documents_indexnow_submission_contract(self):
+        readme = (ROOT / "README.md").read_text(encoding="utf-8")
+        section = readme.split("## IndexNow discovery signal", 1)[1].split("\n## ", 1)[0]
+
+        self.assertIn("https://api.indexnow.org/indexnow", section)
+        self.assertIn(f"{PUBLIC_ORIGIN}/{INDEXNOW_KEY}.txt", section)
+        submission_urls = re.findall(r"^- `(https://[^`]+)`$", section, re.MULTILINE)
+        self.assertEqual(
+            [f"{PUBLIC_ORIGIN}/", f"{PUBLIC_ORIGIN}/demo.html"],
+            submission_urls,
+        )
+        self.assertNotIn(f"{PUBLIC_ORIGIN}/product-manifest.json", section)
+        self.assertNotIn(
+            f"{PUBLIC_ORIGIN}/assets/product-hunt-gallery-01.png",
+            section,
+        )
+        self.assertIn("public ownership token, not a secret", section)
+        self.assertIn("does not prove indexing or revenue", section)
+        self.assertIn("Repeated submissions are avoided", section)
+
+    def test_sitemap_lists_only_canonical_public_pages_without_lastmod(self):
+        sitemap_path = ROOT / "sitemap.xml"
+        tree = ET.parse(sitemap_path)
+        root = tree.getroot()
+        namespace = {"sitemap": "http://www.sitemaps.org/schemas/sitemap/0.9"}
+        locations = [
+            element.text for element in root.findall("sitemap:url/sitemap:loc", namespace)
+        ]
+
+        self.assertEqual(
+            [
+                f"{PUBLIC_ORIGIN}/",
+                f"{PUBLIC_ORIGIN}/demo.html",
+                f"{PUBLIC_ORIGIN}/product-manifest.json",
+                f"{PUBLIC_ORIGIN}/terms.html",
+                f"{PUBLIC_ORIGIN}/privacy.html",
+                f"{PUBLIC_ORIGIN}/refunds.html",
+            ],
+            locations,
+        )
+        self.assertEqual([], root.findall(".//sitemap:lastmod", namespace))
+        self.assertEqual(len(locations), len(root.findall("sitemap:url", namespace)))
+
+    def test_robots_allows_all_and_points_to_absolute_sitemap(self):
+        robots_lines = (ROOT / "robots.txt").read_text(encoding="utf-8").splitlines()
+
+        self.assertEqual(
+            [
+                "User-agent: *",
+                "Allow: /",
+                f"Sitemap: {PUBLIC_ORIGIN}/sitemap.xml",
+            ],
+            robots_lines,
+        )
+
+    def test_readme_documents_sitemap_and_robots_files(self):
+        readme = (ROOT / "README.md").read_text(encoding="utf-8")
+
+        self.assertIn(f"{PUBLIC_ORIGIN}/sitemap.xml", readme)
+        self.assertIn(f"{PUBLIC_ORIGIN}/robots.txt", readme)
+        self.assertIn("No `lastmod` values", readme)
+
     def test_primary_checkout_button_meets_wcag_aa_contrast(self):
         stylesheet = (ROOT / "styles.css").read_text(encoding="utf-8")
         primary_rule = re.search(r"\.button-primary\s*\{(?P<body>[^}]*)\}", stylesheet, re.DOTALL)
