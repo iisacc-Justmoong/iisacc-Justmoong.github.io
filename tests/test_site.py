@@ -5,6 +5,7 @@ from pathlib import Path
 
 
 ROOT = Path(__file__).resolve().parents[1]
+TEAM_CHECKOUT_URL = "https://www.paypal.com/ncp/payment/2SHM4XZQ8BVE2"
 
 
 class PageParser(HTMLParser):
@@ -62,6 +63,7 @@ class SalesSiteTests(unittest.TestCase):
             "Perpetual internal-use license",
             "No consulting",
             "No custom development",
+            "payment processor confirms a completed, cleared payment",
             "71580501a6004ae63e2443a5b8bac61dd84411b3dccdd5ad532f002e45e515d7",
         ):
             self.assertIn(phrase, text)
@@ -84,12 +86,17 @@ class SalesSiteTests(unittest.TestCase):
         self.assertIn("overflow-wrap: anywhere", stylesheet)
         self.assertIn("minmax(0, 1fr)", stylesheet)
 
-    def test_root_exposes_local_commercial_policies_and_purchase_intake(self):
+    def test_root_exposes_local_commercial_policies_and_direct_team_checkout(self):
         _, parser, text = parse("index.html")
 
         for link in ("terms.html", "privacy.html", "refunds.html"):
             self.assertIn(link, parser.links)
-        self.assertTrue(
+        self.assertEqual(1, parser.links.count(TEAM_CHECKOUT_URL))
+        self.assertRegex(
+            TEAM_CHECKOUT_URL,
+            r"^https://www\.paypal\.com/ncp/payment/[A-Z0-9]+$",
+        )
+        self.assertFalse(
             any(
                 link.startswith(
                     "mailto:andudyun0504@gmail.com?subject=Agent%20Eval%20Kit%20Team%20License"
@@ -97,6 +104,9 @@ class SalesSiteTests(unittest.TestCase):
                 for link in parser.links
             )
         )
+        self.assertIn("Buy the Team License", text)
+        self.assertIn("Checkout is hosted by PayPal", text)
+        self.assertNotIn("Request the Team purchase link", text)
         self.assertTrue(
             any(
                 link.startswith(
@@ -105,27 +115,29 @@ class SalesSiteTests(unittest.TestCase):
                 for link in parser.links
             )
         )
-        self.assertIn("Purchasing legal entity", text)
+        self.assertIn("licensed legal entity", text)
 
-    def test_policy_pages_cover_software_license_and_paddle_requirements(self):
+    def test_policy_pages_cover_software_license_and_supported_payment_processors(self):
         expectations = {
             "terms.html": (
                 "Terms of Sale and Software License",
                 "Perpetual internal-use license",
                 "No professional services",
                 "Paddle",
+                "PayPal",
             ),
             "privacy.html": (
                 "Privacy Notice",
                 "billing contact",
                 "No telemetry",
                 "Paddle",
+                "PayPal",
             ),
             "refunds.html": (
                 "Refund Policy",
                 "downloadable software",
                 "14 calendar days",
-                "Paddle",
+                "payment processor",
             ),
         }
 
@@ -134,6 +146,7 @@ class SalesSiteTests(unittest.TestCase):
                 _, parser, text = parse(page_name)
                 for phrase in phrases:
                     self.assertIn(phrase, text)
+                self.assertIn("Effective July 21, 2026", text)
                 self.assertIn("index.html", parser.links)
                 self.assertIn("mailto:andudyun0504@gmail.com", parser.links)
 
@@ -152,7 +165,16 @@ class SalesSiteTests(unittest.TestCase):
                 for phrase in prohibited:
                     self.assertNotIn(phrase, source)
 
-    def test_site_has_no_third_party_runtime_before_checkout_approval(self):
+    def test_payment_policies_keep_paypal_and_paddle_roles_distinct(self):
+        for page_name in ("terms.html", "privacy.html", "refunds.html"):
+            with self.subTest(page=page_name):
+                source = (ROOT / page_name).read_text(encoding="utf-8")
+                self.assertIn("Supplier remains the seller", source)
+                self.assertIn("Paddle", source)
+                self.assertIn("merchant of record", source)
+                self.assertNotIn("PayPal acts as merchant of record", source)
+
+    def test_site_keeps_a_static_no_embed_security_boundary(self):
         for page_name in ("index.html", "terms.html", "privacy.html", "refunds.html"):
             with self.subTest(page=page_name):
                 source, parser, _ = parse(page_name)
