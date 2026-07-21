@@ -1,0 +1,60 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Security and Vulnerability Reporting | Agent Eval Kit</title>
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body>
+    <main class="shell policy-page">
+      <a class="back-link" href="index.html">← Back to Agent Eval Kit</a>
+      <p class="eyebrow">Effective July 21, 2026</p>
+      <h1>Security and Vulnerability Reporting</h1>
+      <p>
+        This page defines the public security boundary and reporting path for the fixed Agent Eval Kit release.
+        It is not a security certification or a guarantee of model or customer-system performance.
+      </p>
+
+      <h2>Supported version</h2>
+      <p>
+        <strong>Supported version: Agent Eval Kit 1.0.0.</strong> Reports should identify this exact version and the
+        published archive SHA-256
+        <strong>71580501a6004ae63e2443a5b8bac61dd84411b3dccdd5ad532f002e45e515d7</strong>. The release requires
+        Python 3.11 or newer, uses only the Python standard library, and contains no third-party packages. The
+        release metadata and dependency scope are recorded in the
+        <a href="agent-eval-kit-1.0.0.spdx.json">SPDX 2.3 JSON SBOM</a>.
+      </p>
+
+      <h2>Security boundary</h2>
+      <p>
+        The software validates recorded local JSON evidence against a versioned contract. It does not access a
+        network, does not collect telemetry, and does not execute customer code or arbitrary code. The caller runs
+        tests in its own isolated environment; the software does not inspect repositories or production systems.
+      </p>
+
+      <h2>Reporting a vulnerability</h2>
+      <p>
+        Send a report to <a href="mailto:andudyun0504@gmail.com">andudyun0504@gmail.com</a> with the product version,
+        archive SHA-256, Python version, operating system, affected command or input shape, reproducible steps, and
+        a concise impact description. Include only the minimum non-sensitive material needed to reproduce the issue.
+        Do not send passwords, production secrets, private user data, or customer source code. This reporting path
+        does not authorize access to or testing of third-party systems or data.
+      </p>
+
+      <h2>Handling</h2>
+      <p>
+        Vulnerability reports are reviewed and handled on a reasonable best-effort basis. No acknowledgement,
+        remediation, disclosure, or release deadline is promised. When a report is reproducible and within the
+        documented product boundary, the Supplier may provide guidance, a corrected build, or an updated notice as
+        appropriate.
+      </p>
+
+      <p>
+        Related public records: <a href="product-manifest.json">Release manifest</a> ·
+        <a href="terms.html">Terms</a> · <a href="privacy.html">Privacy</a> ·
+        <a href="refunds.html">Refunds</a>
+      </p>
+    </main>
+  </body>
+</html>

@@ -1,0 +1,51 @@
+{
+  "spdxVersion": "SPDX-2.3",
+  "dataLicense": "CC0-1.0",
+  "SPDXID": "SPDXRef-DOCUMENT",
+  "name": "Agent Eval Kit 1.0.0 SBOM",
+  "documentNamespace": "https://iisacc-justmoong.github.io/spdx/agent-eval-kit-1.0.0/71580501a6004ae63e2443a5b8bac61dd84411b3dccdd5ad532f002e45e515d7",
+  "creationInfo": {
+    "created": "2026-07-21T08:54:55Z",
+    "creators": [
+      "Person: Muyeong Yun"
+    ]
+  },
+  "documentDescribes": [
+    "SPDXRef-Package-Agent-Eval-Kit"
+  ],
+  "packages": [
+    {
+      "SPDXID": "SPDXRef-Package-Agent-Eval-Kit",
+      "name": "Agent Eval Kit",
+      "versionInfo": "1.0.0",
+      "packageFileName": "agent-eval-kit-1.0.0.pyz",
+      "primaryPackagePurpose": "APPLICATION",
+      "supplier": "Person: Muyeong Yun",
+      "downloadLocation": "NONE",
+      "filesAnalyzed": false,
+      "licenseConcluded": "NOASSERTION",
+      "licenseDeclared": "NOASSERTION",
+      "copyrightText": "Copyright 2026 Muyeong Yun",
+      "checksums": [
+        {
+          "algorithm": "SHA256",
+          "checksumValue": "71580501a6004ae63e2443a5b8bac61dd84411b3dccdd5ad532f002e45e515d7"
+        }
+      ],
+      "comment": "Requires a separately supplied Python 3.11 or newer runtime and uses only the Python standard library. It contains no third-party packages and no bundled runtime dependencies."
+    }
+  ],
+  "relationships": [
+    {
+      "spdxElementId": "SPDXRef-DOCUMENT",
+      "relationshipType": "DESCRIBES",
+      "relatedSpdxElement": "SPDXRef-Package-Agent-Eval-Kit"
+    },
+    {
+      "spdxElementId": "SPDXRef-Package-Agent-Eval-Kit",
+      "relationshipType": "DEPENDS_ON",
+      "relatedSpdxElement": "NONE",
+      "comment": "No third-party or bundled runtime packages are present in this SBOM scope. Python 3.11 or newer is an external execution prerequisite."
+    }
+  ]
+}

@@ -11,6 +11,8 @@ ROOT = Path(__file__).resolve().parents[1]
 TEAM_CHECKOUT_URL = "https://www.paypal.com/ncp/payment/2SHM4XZQ8BVE2"
 PUBLIC_ORIGIN = "https://iisacc-justmoong.github.io"
 INDEXNOW_KEY = "85f6cd16c59495e50ef6232cdc8df61f"
+ARTIFACT_SHA256 = "71580501a6004ae63e2443a5b8bac61dd84411b3dccdd5ad532f002e45e515d7"
+SBOM_FILE = "agent-eval-kit-1.0.0.spdx.json"
 
 
 class PageParser(HTMLParser):
@@ -128,6 +130,8 @@ class SalesSiteTests(unittest.TestCase):
                 f"{PUBLIC_ORIGIN}/",
                 f"{PUBLIC_ORIGIN}/demo.html",
                 f"{PUBLIC_ORIGIN}/product-manifest.json",
+                f"{PUBLIC_ORIGIN}/{SBOM_FILE}",
+                f"{PUBLIC_ORIGIN}/security.html",
                 f"{PUBLIC_ORIGIN}/terms.html",
                 f"{PUBLIC_ORIGIN}/privacy.html",
                 f"{PUBLIC_ORIGIN}/refunds.html",
@@ -242,7 +246,7 @@ class SalesSiteTests(unittest.TestCase):
     def test_root_exposes_local_commercial_policies_and_direct_team_checkout(self):
         _, parser, text = parse("index.html")
 
-        for link in ("terms.html", "privacy.html", "refunds.html"):
+        for link in ("terms.html", "privacy.html", "refunds.html", "security.html", SBOM_FILE):
             self.assertIn(link, parser.links)
         self.assertEqual(2, parser.links.count(TEAM_CHECKOUT_URL))
         self.assertRegex(
@@ -272,6 +276,114 @@ class SalesSiteTests(unittest.TestCase):
         self.assertIn(TEAM_CHECKOUT_URL, hero)
         self.assertIn("Buy Team License · USD 1,000", hero)
         self.assertIn('href="demo.html"', hero)
+
+    def test_public_spdx_sbom_describes_exact_release_without_third_party_packages(self):
+        sbom = json.loads((ROOT / SBOM_FILE).read_text(encoding="utf-8"))
+        manifest = json.loads((ROOT / "product-manifest.json").read_text(encoding="utf-8"))
+
+        self.assertEqual("SPDX-2.3", sbom["spdxVersion"])
+        self.assertEqual("CC0-1.0", sbom["dataLicense"])
+        self.assertEqual("SPDXRef-DOCUMENT", sbom["SPDXID"])
+        self.assertEqual("Agent Eval Kit 1.0.0 SBOM", sbom["name"])
+        self.assertEqual(
+            f"{PUBLIC_ORIGIN}/spdx/agent-eval-kit-1.0.0/{ARTIFACT_SHA256}",
+            sbom["documentNamespace"],
+        )
+        self.assertRegex(
+            sbom["creationInfo"]["created"],
+            r"^2026-07-21T\d{2}:\d{2}:\d{2}Z$",
+        )
+        self.assertEqual(["Person: Muyeong Yun"], sbom["creationInfo"]["creators"])
+        self.assertEqual(["SPDXRef-Package-Agent-Eval-Kit"], sbom["documentDescribes"])
+
+        self.assertEqual(1, len(sbom["packages"]))
+        package = sbom["packages"][0]
+        self.assertEqual("SPDXRef-Package-Agent-Eval-Kit", package["SPDXID"])
+        self.assertEqual("Agent Eval Kit", package["name"])
+        self.assertEqual(manifest["version"], package["versionInfo"])
+        self.assertEqual(manifest["artifact"], package["packageFileName"])
+        self.assertEqual("APPLICATION", package["primaryPackagePurpose"])
+        self.assertEqual("Person: Muyeong Yun", package["supplier"])
+        self.assertEqual("NONE", package["downloadLocation"])
+        self.assertFalse(package["filesAnalyzed"])
+        self.assertNotIn("files", sbom)
+        self.assertNotIn("hasFiles", package)
+        self.assertNotIn("packageVerificationCode", package)
+        self.assertEqual("NOASSERTION", package["licenseConcluded"])
+        self.assertEqual("NOASSERTION", package["licenseDeclared"])
+        self.assertEqual("Copyright 2026 Muyeong Yun", package["copyrightText"])
+        self.assertEqual(
+            [{"algorithm": "SHA256", "checksumValue": manifest["sha256"]}],
+            package["checksums"],
+        )
+        self.assertRegex(package["checksums"][0]["checksumValue"], r"^[0-9a-f]{64}$")
+        for phrase in (
+            "Python 3.11 or newer",
+            "Python standard library",
+            "no third-party packages",
+            "no bundled runtime dependencies",
+        ):
+            self.assertIn(phrase, package["comment"])
+
+        self.assertEqual(
+            [
+                {
+                    "spdxElementId": "SPDXRef-DOCUMENT",
+                    "relationshipType": "DESCRIBES",
+                    "relatedSpdxElement": "SPDXRef-Package-Agent-Eval-Kit",
+                },
+                {
+                    "spdxElementId": "SPDXRef-Package-Agent-Eval-Kit",
+                    "relationshipType": "DEPENDS_ON",
+                    "relatedSpdxElement": "NONE",
+                    "comment": (
+                        "No third-party or bundled runtime packages are present in this SBOM scope. "
+                        "Python 3.11 or newer is an external execution prerequisite."
+                    ),
+                },
+            ],
+            sbom["relationships"],
+        )
+
+    def test_security_page_publishes_supported_version_and_best_effort_boundary(self):
+        source, parser, text = parse("security.html")
+
+        for phrase in (
+            "Security and Vulnerability Reporting",
+            "Supported version: Agent Eval Kit 1.0.0",
+            "Python 3.11 or newer",
+            "no third-party packages",
+            ARTIFACT_SHA256,
+            "reasonable best-effort basis",
+            "No acknowledgement, remediation, disclosure, or release deadline is promised",
+            "does not access a network",
+            "does not collect telemetry",
+            "does not execute customer code or arbitrary code",
+            "Do not send passwords, production secrets, private user data, or customer source code",
+        ):
+            self.assertIn(phrase, text)
+
+        for link in (
+            "index.html",
+            SBOM_FILE,
+            "product-manifest.json",
+            "terms.html",
+            "privacy.html",
+            "refunds.html",
+        ):
+            self.assertIn(link, parser.links)
+        self.assertIn("mailto:andudyun0504@gmail.com", parser.links)
+        self.assertEqual([], parser.scripts)
+        self.assertNotIn("<iframe", source.lower())
+
+    def test_readme_documents_public_security_and_sbom_contract(self):
+        readme = (ROOT / "README.md").read_text(encoding="utf-8")
+
+        self.assertIn(f"{PUBLIC_ORIGIN}/security.html", readme)
+        self.assertIn(f"{PUBLIC_ORIGIN}/{SBOM_FILE}", readme)
+        self.assertIn("SPDX 2.3 JSON", readme)
+        self.assertIn("no third-party packages or bundled runtime dependencies", readme)
+        self.assertIn("reasonable best-effort", readme)
 
     def test_root_publishes_canonical_social_purchase_metadata(self):
         _, parser, _ = parse("index.html")
@@ -414,7 +526,7 @@ class SalesSiteTests(unittest.TestCase):
             "request the usd 1,000 audit",
             "work third",
         )
-        for page_name in ("index.html", "demo.html", "terms.html", "privacy.html", "refunds.html"):
+        for page_name in ("index.html", "demo.html", "terms.html", "privacy.html", "refunds.html", "security.html"):
             with self.subTest(page=page_name):
                 source = (ROOT / page_name).read_text(encoding="utf-8").lower()
                 for phrase in prohibited:
@@ -430,7 +542,7 @@ class SalesSiteTests(unittest.TestCase):
                 self.assertNotIn("PayPal acts as merchant of record", source)
 
     def test_site_keeps_a_static_no_embed_security_boundary(self):
-        for page_name in ("index.html", "terms.html", "privacy.html", "refunds.html"):
+        for page_name in ("index.html", "terms.html", "privacy.html", "refunds.html", "security.html"):
             with self.subTest(page=page_name):
                 source, parser, _ = parse(page_name)
                 self.assertEqual([], parser.scripts)
