@@ -1,5 +1,6 @@
 import json
 import re
+import struct
 import unittest
 from html.parser import HTMLParser
 from pathlib import Path
@@ -178,7 +179,28 @@ class SalesSiteTests(unittest.TestCase):
             parser.meta["og:url"],
         )
         self.assertIn("one-time Team License", parser.meta["og:description"])
-        self.assertEqual("summary", parser.meta["twitter:card"])
+        self.assertEqual(
+            "https://iisacc-justmoong.github.io/assets/product-hunt-gallery-01.png",
+            parser.meta["og:image"],
+        )
+        self.assertEqual("1270", parser.meta["og:image:width"])
+        self.assertEqual("760", parser.meta["og:image:height"])
+        self.assertEqual("summary_large_image", parser.meta["twitter:card"])
+        self.assertEqual(parser.meta["og:image"], parser.meta["twitter:image"])
+
+    def test_launch_artwork_has_exact_png_dimensions(self):
+        expected_dimensions = {
+            "product-hunt-thumbnail.png": (240, 240),
+            "product-hunt-gallery-01.png": (1270, 760),
+            "product-hunt-gallery-02.png": (1270, 760),
+        }
+
+        for filename, expected in expected_dimensions.items():
+            with self.subTest(filename=filename):
+                data = (ROOT / "assets" / filename).read_bytes()
+                self.assertEqual(b"\x89PNG\r\n\x1a\n", data[:8])
+                self.assertEqual(b"IHDR", data[12:16])
+                self.assertEqual(expected, struct.unpack(">II", data[16:24]))
 
     def test_demo_publishes_reproducible_product_input_and_output(self):
         source, parser, text = parse("demo.html")
