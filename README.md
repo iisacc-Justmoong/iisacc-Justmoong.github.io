@@ -6,13 +6,17 @@ This repository owns the root GitHub Pages host for Agent Eval Kit, downloadable
 
 The root page also publishes a canonical URL and script-free Open Graph and large-image card metadata so shared purchase links retain the exact product name, offline acceptance boundary, and one-time Team License positioning.
 
-The launch artwork is published under `assets/`: a 240 x 240 thumbnail and two 1270 x 760 gallery images. The SVG source artwork is maintained with the revenue-run records; the public PNG files are the immutable upload and URL-paste variants used by product-discovery surfaces.
+The launch artwork is published under `assets/`: a 240 x 240 thumbnail and two 1270 x 760 gallery images. The first gallery image is also the buyer-visible product flow on the root page, so prospective purchasers can inspect the offline input-to-decision boundary without relying on social metadata. The SVG source artwork is maintained with the revenue-run records; the public PNG files are the immutable upload and URL-paste variants used by product-discovery surfaces.
 
 The site intentionally uses only static HTML and CSS. It has no package-manager dependency, analytics runtime, advertising pixel, account login, checkout script, or iframe. The Team CTA links directly to a verified one-time PayPal hosted payment page. License paths that require seller reauthentication are not published as active purchase options. Paddle Checkout may be added after the software domain is approved and the client-side flow can be verified against an active software price.
 
 The product source, tests, and standalone build are maintained separately from this public sales repository. The public `product-manifest.json` records the exact release name and SHA-256 without exposing the paid archive.
 
 `demo.html` publishes a copyable Version 1.0.0 walkthrough generated from the reproducible release artifact: the example contract and evidence, the two exact CLI commands, the stable contract seal, all eight deterministic checks, and the final pass/reward fields. Keep it synchronized with the product examples and actual built output; do not hand-edit result values without rerunning the release archive.
+
+## Buyer-visible product requirements
+
+Keep the public product page and Terms synchronized with the release README and product contract. The supported runtime is Python 3.11 or newer, and the application has no third-party package dependencies. Email support is limited to installation questions and reproducible defects in the purchased version. The root page must also preserve the caller-run trust boundary and summarize the published remedy and refund path for material reproducible defects. These requirements and boundaries must remain visible before checkout.
 
 ## IndexNow discovery signal
 

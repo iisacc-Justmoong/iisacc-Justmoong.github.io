@@ -19,6 +19,7 @@ class PageParser(HTMLParser):
         self.links = []
         self.canonical_links = []
         self.meta = {}
+        self.images = []
         self.text_parts = []
         self.styles = []
         self.scripts = []
@@ -36,6 +37,8 @@ class PageParser(HTMLParser):
             key = attributes.get("property") or attributes.get("name")
             if key:
                 self.meta[key] = attributes.get("content", "")
+        if tag == "img":
+            self.images.append(attributes)
         if tag == "script":
             self.scripts.append(attributes)
         if tag == "style":
@@ -176,9 +179,15 @@ class SalesSiteTests(unittest.TestCase):
             "USD 1,000",
             "25 internal users",
             "Version 1.0.0",
+            "Python 3.11 or newer",
             "Perpetual internal-use license",
             "No consulting",
             "No custom development",
+            "Email support is limited to installation questions and reproducible defects",
+            "The caller runs tests in its own isolated environment",
+            "validates only recorded JSON evidence and never executes customer code",
+            "full refund may be requested within 14 calendar days if the archive has not been delivered or accessed",
+            "material reproducible defects",
             "payment processor confirms a completed, cleared payment",
             "within 24 hours",
             "71580501a6004ae63e2443a5b8bac61dd84411b3dccdd5ad532f002e45e515d7",
@@ -209,6 +218,26 @@ class SalesSiteTests(unittest.TestCase):
         self.assertIn("styles.css", parser.links)
         self.assertIn("overflow-wrap: anywhere", stylesheet)
         self.assertIn("minmax(0, 1fr)", stylesheet)
+
+    def test_root_shows_the_product_flow_before_checkout(self):
+        _, parser, _ = parse("index.html")
+
+        self.assertIn(
+            {
+                "class": "product-visual-image",
+                "src": "assets/product-hunt-gallery-01.png",
+                "width": "1270",
+                "height": "760",
+                "alt": "Agent Eval Kit flow from contract and evidence JSON to an offline deterministic decision",
+            },
+            parser.images,
+        )
+
+        stylesheet = (ROOT / "styles.css").read_text(encoding="utf-8")
+        self.assertRegex(
+            stylesheet,
+            r"\.product-visual-image\s*\{[^}]*width:\s*100%;[^}]*height:\s*auto;",
+        )
 
     def test_root_exposes_local_commercial_policies_and_direct_team_checkout(self):
         _, parser, text = parse("index.html")
@@ -310,6 +339,7 @@ class SalesSiteTests(unittest.TestCase):
         expectations = {
             "terms.html": (
                 "Terms of Sale and Software License",
+                "Python 3.11 or newer",
                 "Perpetual internal-use license",
                 "No professional services",
                 "Paddle",
@@ -342,6 +372,17 @@ class SalesSiteTests(unittest.TestCase):
         _, _, terms_text = parse("terms.html")
         self.assertIn("within 24 hours", terms_text)
         self.assertNotIn("Individual License", terms_text)
+
+    def test_readme_keeps_runtime_and_support_terms_buyer_visible(self):
+        readme = (ROOT / "README.md").read_text(encoding="utf-8")
+
+        self.assertIn("Python 3.11 or newer", readme)
+        self.assertIn(
+            "Email support is limited to installation questions and reproducible defects",
+            readme,
+        )
+        self.assertIn("buyer-visible product flow", readme)
+        self.assertIn("material reproducible defects", readme)
 
     def test_site_does_not_market_unsupported_human_services(self):
         prohibited = (

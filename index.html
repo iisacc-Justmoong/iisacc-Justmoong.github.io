@@ -43,6 +43,10 @@
           with SHA-256, and evaluates recorded evidence against the pinned repository commit, exact command, and
           required checks. It runs offline and has no third-party runtime dependencies.
         </p>
+        <p class="trust-boundary">
+          The caller runs tests in its own isolated environment; Agent Eval Kit validates only recorded JSON
+          evidence and never executes customer code.
+        </p>
         <div class="hero-actions">
           <a class="button button-primary" href="https://www.paypal.com/ncp/payment/2SHM4XZQ8BVE2"
             >Buy Team License · USD 1,000</a
@@ -54,6 +58,15 @@
           <span>No arbitrary code execution</span>
           <span>No telemetry</span>
         </div>
+        <figure class="product-visual">
+          <img
+            class="product-visual-image"
+            src="assets/product-hunt-gallery-01.png"
+            width="1270"
+            height="760"
+            alt="Agent Eval Kit flow from contract and evidence JSON to an offline deterministic decision"
+          />
+        </figure>
       </section>
 
       <section class="shell service-grid" aria-label="Software license">
@@ -65,6 +78,7 @@
           <ul>
             <li>Perpetual internal-use license for one legal entity</li>
             <li>Standalone Python zip application</li>
+            <li>Python 3.11 or newer; no third-party packages</li>
             <li>Contract validation and canonical SHA-256 sealing</li>
             <li>Fail-closed evidence evaluation with no partial credit</li>
             <li>Examples, product documentation, and checksum</li>
@@ -77,6 +91,12 @@
           <p class="delivery">
             Checkout is hosted by PayPal. Delivery is completed to the payer email within 24 hours after cleared
             payment and confirmation of the licensed legal entity; no account, meeting, or shipping is required.
+            Email support is limited to installation questions and reproducible defects in the purchased version.
+          </p>
+          <p class="delivery">
+            Under the <a href="refunds.html">Refund Policy</a>, a full refund may be requested within 14 calendar
+            days if the archive has not been delivered or accessed, with a documented remedy and refund path for
+            material reproducible defects.
           </p>
         </article>
       </section>
