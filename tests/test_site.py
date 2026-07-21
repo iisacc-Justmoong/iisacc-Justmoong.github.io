@@ -335,6 +335,27 @@ class SalesSiteTests(unittest.TestCase):
         self.assertNotIn("<iframe", source.lower())
         self.assertLess(source.index(TEAM_CHECKOUT_URL), source.index("<h2>1. Versioned task contract</h2>"))
 
+    def test_demo_publishes_exact_fail_closed_tamper_rejection(self):
+        source, _, text = parse("demo.html")
+
+        for phrase in (
+            "5. Reject a changed commit",
+            "python3 agent-eval-kit-1.0.0.pyz evaluate contract.json tampered-evidence.json",
+            '"repository_commit": "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb"',
+            "Process exit code: 1",
+            '"name": "repository_commit_pinned"',
+            '"passed": false',
+            '"reward": 0.0',
+        ):
+            self.assertIn(phrase, text)
+
+        self.assertEqual(2, text.count('"passed": false'))
+        self.assertLess(source.index('"reward": 1.0'), source.index("<h2>5. Reject a changed commit</h2>"))
+
+        readme = (ROOT / "README.md").read_text(encoding="utf-8")
+        self.assertIn("exact tamper-rejection command", readme)
+        self.assertIn("nonzero process exit", readme)
+
     def test_policy_pages_cover_software_license_and_supported_payment_processors(self):
         expectations = {
             "terms.html": (

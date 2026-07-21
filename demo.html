@@ -150,6 +150,65 @@
   "task_id": "catalog-normalization"
 }</code></pre>
 
+      <h2>5. Reject a changed commit</h2>
+      <p>
+        In a copy named <strong>tampered-evidence.json</strong>, only the recorded repository commit is changed:
+      </p>
+      <pre class="code-panel"><code>{
+  "repository_commit": "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb"
+}</code></pre>
+      <pre class="code-panel"><code>python3 agent-eval-kit-1.0.0.pyz evaluate contract.json tampered-evidence.json</code></pre>
+      <p><strong>Process exit code: 1</strong></p>
+      <pre class="code-panel"><code>{
+  "checks": [
+    {
+      "detail": "Evidence uses only the declared 1.0 fields.",
+      "name": "evidence_schema_exact",
+      "passed": true
+    },
+    {
+      "detail": "Evidence schema version matches the product contract.",
+      "name": "schema_version_exact",
+      "passed": true
+    },
+    {
+      "detail": "Evidence belongs to the sealed task.",
+      "name": "task_id_exact",
+      "passed": true
+    },
+    {
+      "detail": "Evidence uses the pinned repository commit.",
+      "name": "repository_commit_pinned",
+      "passed": false
+    },
+    {
+      "detail": "The recorded command exactly matches the contract.",
+      "name": "command_exact",
+      "passed": true
+    },
+    {
+      "detail": "The recorded command completed successfully.",
+      "name": "exit_code_zero",
+      "passed": true
+    },
+    {
+      "detail": "No required check is missing and no self-awarded check is present.",
+      "name": "check_schema_exact",
+      "passed": true
+    },
+    {
+      "detail": "Every declared required check passed.",
+      "name": "required_checks_passed",
+      "passed": true
+    }
+  ],
+  "contract_sha256": "fac5f172f0f48e750505e208354a8a2d6f7d3c12882f40519189852e92050aca",
+  "passed": false,
+  "reward": 0.0,
+  "schema_version": "1.0",
+  "task_id": "catalog-normalization"
+}</code></pre>
+
       <div class="demo-callout">
         <h2>Trust boundary</h2>
         <p>The application validates recorded evidence; it does not execute customer code.</p>

@@ -12,7 +12,7 @@ The site intentionally uses only static HTML and CSS. It has no package-manager 
 
 The product source, tests, and standalone build are maintained separately from this public sales repository. The public `product-manifest.json` records the exact release name and SHA-256 without exposing the paid archive.
 
-`demo.html` publishes a copyable Version 1.0.0 walkthrough generated from the reproducible release artifact: the example contract and evidence, the two exact CLI commands, the stable contract seal, all eight deterministic checks, and the final pass/reward fields. Keep it synchronized with the product examples and actual built output; do not hand-edit result values without rerunning the release archive.
+`demo.html` publishes a copyable Version 1.0.0 walkthrough generated from the reproducible release artifact: the example contract and evidence, the validate and passing-evaluation commands, the stable contract seal, all eight deterministic checks, and the final pass/reward fields. It also publishes the exact tamper-rejection command, its nonzero process exit, the failed pinned-commit check, and the zero-reward result. Keep it synchronized with the product examples and actual built output; do not hand-edit result values without rerunning the release archive.
 
 ## Buyer-visible product requirements
 
