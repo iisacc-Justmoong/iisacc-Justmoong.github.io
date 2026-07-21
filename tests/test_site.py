@@ -223,6 +223,36 @@ class SalesSiteTests(unittest.TestCase):
         self.assertIn("overflow-wrap: anywhere", stylesheet)
         self.assertIn("minmax(0, 1fr)", stylesheet)
 
+    def test_root_publishes_machine_readable_product_and_offer(self):
+        source = (ROOT / "index.html").read_text(encoding="utf-8")
+        matches = re.findall(
+            r'<script\s+type="application/ld\+json">\s*(\{.*?\})\s*</script>',
+            source,
+            re.DOTALL,
+        )
+
+        self.assertEqual(1, len(matches))
+        product = json.loads(matches[0])
+        self.assertEqual("https://schema.org", product["@context"])
+        self.assertEqual(["Product", "SoftwareApplication"], product["@type"])
+        self.assertEqual("Agent Eval Kit Team License", product["name"])
+        self.assertEqual(f"{PUBLIC_ORIGIN}/", product["url"])
+        self.assertEqual("1.0.0", product["softwareVersion"])
+        self.assertEqual("DeveloperApplication", product["applicationCategory"])
+        self.assertEqual("Python 3.11 or newer", product["softwareRequirements"])
+        self.assertEqual(
+            f"{PUBLIC_ORIGIN}/assets/product-hunt-gallery-01.png",
+            product["image"],
+        )
+
+        offer = product["offers"]
+        self.assertEqual("Offer", offer["@type"])
+        self.assertEqual(TEAM_CHECKOUT_URL, offer["url"])
+        self.assertEqual("1000.00", offer["price"])
+        self.assertEqual("USD", offer["priceCurrency"])
+        self.assertEqual("https://schema.org/InStock", offer["availability"])
+        self.assertEqual("https://schema.org/NewCondition", offer["itemCondition"])
+
     def test_root_shows_the_product_flow_before_checkout(self):
         _, parser, _ = parse("index.html")
 
@@ -545,7 +575,12 @@ class SalesSiteTests(unittest.TestCase):
         for page_name in ("index.html", "terms.html", "privacy.html", "refunds.html", "security.html"):
             with self.subTest(page=page_name):
                 source, parser, _ = parse(page_name)
-                self.assertEqual([], parser.scripts)
+                expected_scripts = (
+                    [{"type": "application/ld+json"}]
+                    if page_name == "index.html"
+                    else []
+                )
+                self.assertEqual(expected_scripts, parser.scripts)
                 self.assertNotIn("<iframe", source.lower())
                 self.assertNotIn("http://", source.lower())
 
