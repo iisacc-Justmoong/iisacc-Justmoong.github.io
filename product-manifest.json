@@ -6,11 +6,6 @@
       "internal_users": 25,
       "name": "Team License",
       "price_usd": 1000
-    },
-    {
-      "internal_users": 1,
-      "name": "Individual License",
-      "price_usd": 250
     }
   ],
   "network_access": false,

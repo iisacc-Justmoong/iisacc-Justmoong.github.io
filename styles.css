@@ -61,7 +61,7 @@ a {
 }
 
 .hero {
-  padding-block: clamp(64px, 12vw, 138px) 72px;
+  padding-block: clamp(36px, 7vw, 72px) 40px;
 }
 
 .eyebrow,
@@ -92,7 +92,7 @@ h3 {
 h1 {
   max-width: 900px;
   margin-bottom: 24px;
-  font-size: clamp(3rem, 9vw, 7rem);
+  font-size: clamp(2.8rem, 7vw, 5.6rem);
 }
 
 h2 {
@@ -116,6 +116,13 @@ h3 {
   margin-top: 36px;
 }
 
+.hero-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  margin-top: 28px;
+}
+
 .proof-row span {
   border: 1px solid #d0c8b8;
   border-radius: 999px;
@@ -126,7 +133,7 @@ h3 {
 
 .service-grid {
   display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
+  grid-template-columns: minmax(0, 1fr);
   gap: 20px;
 }
 
@@ -182,6 +189,12 @@ ul {
   margin-top: auto;
 }
 
+.demo-intro-actions {
+  flex-direction: row;
+  flex-wrap: wrap;
+  margin: 28px 0 52px;
+}
+
 .button {
   display: inline-flex;
   align-items: center;
@@ -196,8 +209,8 @@ ul {
 }
 
 .button-primary {
-  border-color: #df6c3a;
-  background: #df6c3a;
+  border-color: #b3471e;
+  background: #b3471e;
   color: #fff;
 }
 
@@ -308,5 +321,23 @@ ul {
 
   .site-header {
     align-items: start;
+  }
+
+  .demo-page {
+    margin-block: 16px;
+    padding: 24px 20px;
+  }
+
+  .demo-page h1 {
+    margin-bottom: 18px;
+    font-size: clamp(2.45rem, 12vw, 2.8rem);
+  }
+
+  .back-link {
+    margin-bottom: 24px;
+  }
+
+  .demo-intro-actions {
+    margin: 20px 0 40px;
   }
 }

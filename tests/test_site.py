@@ -1,4 +1,5 @@
 import json
+import re
 import unittest
 from html.parser import HTMLParser
 from pathlib import Path
@@ -55,8 +56,35 @@ def parse(page_name):
     return source, parser, text
 
 
+def relative_luminance(hex_color):
+    if len(hex_color) == 4:
+        hex_color = "#" + "".join(channel * 2 for channel in hex_color[1:])
+    channels = [int(hex_color[index : index + 2], 16) / 255 for index in (1, 3, 5)]
+    linear = [channel / 12.92 if channel <= 0.04045 else ((channel + 0.055) / 1.055) ** 2.4 for channel in channels]
+    return 0.2126 * linear[0] + 0.7152 * linear[1] + 0.0722 * linear[2]
+
+
+def contrast_ratio(first, second):
+    lighter, darker = sorted((relative_luminance(first), relative_luminance(second)), reverse=True)
+    return (lighter + 0.05) / (darker + 0.05)
+
+
 class SalesSiteTests(unittest.TestCase):
-    def test_root_presents_downloadable_software_and_two_licenses(self):
+    def test_primary_checkout_button_meets_wcag_aa_contrast(self):
+        stylesheet = (ROOT / "styles.css").read_text(encoding="utf-8")
+        primary_rule = re.search(r"\.button-primary\s*\{(?P<body>[^}]*)\}", stylesheet, re.DOTALL)
+
+        self.assertIsNotNone(primary_rule)
+        colors = dict(
+            re.findall(
+                r"^\s*(background|color):\s*(#[0-9a-fA-F]{3,6})\s*;",
+                primary_rule.group("body"),
+                re.MULTILINE,
+            )
+        )
+        self.assertGreaterEqual(contrast_ratio(colors["background"], colors["color"]), 4.5)
+
+    def test_root_presents_downloadable_software_and_team_license(self):
         _, parser, text = parse("index.html")
 
         for phrase in (
@@ -64,19 +92,17 @@ class SalesSiteTests(unittest.TestCase):
             "Agent Eval Kit Team License",
             "USD 1,000",
             "25 internal users",
-            "Agent Eval Kit Individual License",
-            "USD 250",
-            "one internal user",
             "Version 1.0.0",
             "Perpetual internal-use license",
             "No consulting",
             "No custom development",
             "payment processor confirms a completed, cleared payment",
+            "within 24 hours",
             "71580501a6004ae63e2443a5b8bac61dd84411b3dccdd5ad532f002e45e515d7",
         ):
             self.assertIn(phrase, text)
 
-        self.assertIn(
+        self.assertNotIn(
             "https://github.com/iisacc-Justmoong/agent-task-verifier-sample",
             parser.links,
         )
@@ -90,6 +116,12 @@ class SalesSiteTests(unittest.TestCase):
             "71580501a6004ae63e2443a5b8bac61dd84411b3dccdd5ad532f002e45e515d7",
             manifest["sha256"],
         )
+        self.assertEqual(
+            [{"internal_users": 25, "name": "Team License", "price_usd": 1000}],
+            manifest["license_options"],
+        )
+        self.assertNotIn("Agent Eval Kit Individual License", text)
+        self.assertNotIn("USD 250", text)
         stylesheet = (ROOT / "styles.css").read_text(encoding="utf-8")
         self.assertIn("styles.css", parser.links)
         self.assertIn("overflow-wrap: anywhere", stylesheet)
@@ -100,7 +132,7 @@ class SalesSiteTests(unittest.TestCase):
 
         for link in ("terms.html", "privacy.html", "refunds.html"):
             self.assertIn(link, parser.links)
-        self.assertEqual(1, parser.links.count(TEAM_CHECKOUT_URL))
+        self.assertEqual(2, parser.links.count(TEAM_CHECKOUT_URL))
         self.assertRegex(
             TEAM_CHECKOUT_URL,
             r"^https://www\.paypal\.com/ncp/payment/[A-Z0-9]+$",
@@ -116,15 +148,18 @@ class SalesSiteTests(unittest.TestCase):
         self.assertIn("Buy the Team License", text)
         self.assertIn("Checkout is hosted by PayPal", text)
         self.assertNotIn("Request the Team purchase link", text)
-        self.assertTrue(
-            any(
-                link.startswith(
-                    "mailto:andudyun0504@gmail.com?subject=Agent%20Eval%20Kit%20Individual%20License"
-                )
-                for link in parser.links
-            )
+        self.assertFalse(
+            any("Agent%20Eval%20Kit%20Individual%20License" in link for link in parser.links)
         )
         self.assertIn("licensed legal entity", text)
+
+        source = (ROOT / "index.html").read_text(encoding="utf-8")
+        hero = source[
+            source.index('<section class="shell hero">') : source.index("</section>", source.index('<section class="shell hero">'))
+        ]
+        self.assertIn(TEAM_CHECKOUT_URL, hero)
+        self.assertIn("Buy Team License · USD 1,000", hero)
+        self.assertIn('href="demo.html"', hero)
 
     def test_root_publishes_canonical_social_purchase_metadata(self):
         _, parser, _ = parse("index.html")
@@ -161,10 +196,11 @@ class SalesSiteTests(unittest.TestCase):
             self.assertIn(phrase, text)
 
         self.assertIn("index.html", parser.links)
-        self.assertIn(TEAM_CHECKOUT_URL, parser.links)
-        self.assertIn("styles.css?v=walkthrough-1", parser.links)
+        self.assertEqual(2, parser.links.count(TEAM_CHECKOUT_URL))
+        self.assertIn("styles.css?v=walkthrough-2", parser.links)
         self.assertEqual([], parser.scripts)
         self.assertNotIn("<iframe", source.lower())
+        self.assertLess(source.index(TEAM_CHECKOUT_URL), source.index("<h2>1. Versioned task contract</h2>"))
 
     def test_policy_pages_cover_software_license_and_supported_payment_processors(self):
         expectations = {
@@ -199,6 +235,10 @@ class SalesSiteTests(unittest.TestCase):
                 self.assertIn("index.html", parser.links)
                 self.assertIn("mailto:andudyun0504@gmail.com", parser.links)
 
+        _, _, terms_text = parse("terms.html")
+        self.assertIn("within 24 hours", terms_text)
+        self.assertNotIn("Individual License", terms_text)
+
     def test_site_does_not_market_unsupported_human_services(self):
         prohibited = (
             "independent evaluation engineering",
@@ -208,7 +248,7 @@ class SalesSiteTests(unittest.TestCase):
             "request the usd 1,000 audit",
             "work third",
         )
-        for page_name in ("index.html", "terms.html", "privacy.html", "refunds.html"):
+        for page_name in ("index.html", "demo.html", "terms.html", "privacy.html", "refunds.html"):
             with self.subTest(page=page_name):
                 source = (ROOT / page_name).read_text(encoding="utf-8").lower()
                 for phrase in prohibited:

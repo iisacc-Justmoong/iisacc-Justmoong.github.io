@@ -2,11 +2,11 @@
 
 [Review the live product and Team License](https://iisacc-justmoong.github.io/) · [Inspect the exact Version 1.0.0 walkthrough](https://iisacc-justmoong.github.io/demo.html) · [Open the one-time USD 1,000 PayPal checkout](https://www.paypal.com/ncp/payment/2SHM4XZQ8BVE2)
 
-This repository owns the root GitHub Pages host for Agent Eval Kit, downloadable offline B2B software sold under fixed Team and Individual licenses. It publishes the software release manifest and the terms, privacy, and refund pages used by supported payment processors.
+This repository owns the root GitHub Pages host for Agent Eval Kit, downloadable offline B2B software sold under a fixed Team License. It publishes the software release manifest and the terms, privacy, and refund pages used by supported payment processors.
 
 The root page also publishes a canonical URL and script-free Open Graph and summary-card metadata so shared purchase links retain the exact product name, offline acceptance boundary, and one-time Team License positioning.
 
-The site intentionally uses only static HTML and CSS. It has no package-manager dependency, analytics runtime, advertising pixel, account login, checkout script, or iframe. The Team CTA links directly to a verified one-time PayPal hosted payment page; the Individual License remains email intake. Paddle Checkout may be added after the software domain is approved and the client-side flow can be verified against an active software price.
+The site intentionally uses only static HTML and CSS. It has no package-manager dependency, analytics runtime, advertising pixel, account login, checkout script, or iframe. The Team CTA links directly to a verified one-time PayPal hosted payment page. License paths that require seller reauthentication are not published as active purchase options. Paddle Checkout may be added after the software domain is approved and the client-side flow can be verified against an active software price.
 
 The product source, tests, and standalone build are maintained separately from this public sales repository. The public `product-manifest.json` records the exact release name and SHA-256 without exposing the paid archive.
 
@@ -22,7 +22,7 @@ The exact Team checkout URL is pinned in `tests/test_site.py`. Before publishing
 - The return settings contain no Vincent URL, access key, or other product-specific secret.
 - The hosted page is active at exactly `https://www.paypal.com/ncp/payment/<TOKEN>` with no query or fragment.
 
-Keep the exact URL in `index.html` and `tests/test_site.py` synchronized, and leave the Individual License email intake unchanged. Review the diff and run the verification below before publishing.
+Keep the exact URL in `index.html`, `demo.html`, and `tests/test_site.py` synchronized. Review the diff and run the verification below before publishing.
 
 ## Verify
 
