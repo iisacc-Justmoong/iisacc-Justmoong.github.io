@@ -12,6 +12,8 @@ class PageParser(HTMLParser):
     def __init__(self):
         super().__init__()
         self.links = []
+        self.canonical_links = []
+        self.meta = {}
         self.text_parts = []
         self.styles = []
         self.scripts = []
@@ -23,6 +25,12 @@ class PageParser(HTMLParser):
             self.links.append(attributes["href"])
         if tag == "link" and attributes.get("rel") == "stylesheet":
             self.links.append(attributes.get("href", ""))
+        if tag == "link" and attributes.get("rel") == "canonical":
+            self.canonical_links.append(attributes.get("href", ""))
+        if tag == "meta":
+            key = attributes.get("property") or attributes.get("name")
+            if key:
+                self.meta[key] = attributes.get("content", "")
         if tag == "script":
             self.scripts.append(attributes)
         if tag == "style":
@@ -117,6 +125,25 @@ class SalesSiteTests(unittest.TestCase):
             )
         )
         self.assertIn("licensed legal entity", text)
+
+    def test_root_publishes_canonical_social_purchase_metadata(self):
+        _, parser, _ = parse("index.html")
+
+        self.assertEqual(
+            ["https://iisacc-justmoong.github.io/"],
+            parser.canonical_links,
+        )
+        self.assertEqual("website", parser.meta["og:type"])
+        self.assertEqual(
+            "Agent Eval Kit | Offline Verification Software",
+            parser.meta["og:title"],
+        )
+        self.assertEqual(
+            "https://iisacc-justmoong.github.io/",
+            parser.meta["og:url"],
+        )
+        self.assertIn("one-time Team License", parser.meta["og:description"])
+        self.assertEqual("summary", parser.meta["twitter:card"])
 
     def test_demo_publishes_reproducible_product_input_and_output(self):
         source, parser, text = parse("demo.html")

@@ -4,6 +4,8 @@
 
 This repository owns the root GitHub Pages host for Agent Eval Kit, downloadable offline B2B software sold under fixed Team and Individual licenses. It publishes the software release manifest and the terms, privacy, and refund pages used by supported payment processors.
 
+The root page also publishes a canonical URL and script-free Open Graph and summary-card metadata so shared purchase links retain the exact product name, offline acceptance boundary, and one-time Team License positioning.
+
 The site intentionally uses only static HTML and CSS. It has no package-manager dependency, analytics runtime, advertising pixel, account login, checkout script, or iframe. The Team CTA links directly to a verified one-time PayPal hosted payment page; the Individual License remains email intake. Paddle Checkout may be added after the software domain is approved and the client-side flow can be verified against an active software price.
 
 The product source, tests, and standalone build are maintained separately from this public sales repository. The public `product-manifest.json` records the exact release name and SHA-256 without exposing the paid archive.
