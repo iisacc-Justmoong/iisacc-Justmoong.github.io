@@ -72,6 +72,7 @@ class SalesSiteTests(unittest.TestCase):
             "https://github.com/iisacc-Justmoong/agent-task-verifier-sample",
             parser.links,
         )
+        self.assertIn("demo.html", parser.links)
         self.assertIn("product-manifest.json", parser.links)
         manifest = json.loads((ROOT / "product-manifest.json").read_text(encoding="utf-8"))
         self.assertEqual("downloadable_software", manifest["product_type"])
@@ -116,6 +117,27 @@ class SalesSiteTests(unittest.TestCase):
             )
         )
         self.assertIn("licensed legal entity", text)
+
+    def test_demo_publishes_reproducible_product_input_and_output(self):
+        source, parser, text = parse("demo.html")
+
+        for phrase in (
+            "Exact Version 1.0.0 walkthrough",
+            "python3 agent-eval-kit-1.0.0.pyz validate contract.json",
+            "python3 agent-eval-kit-1.0.0.pyz evaluate contract.json passing-evidence.json",
+            "fac5f172f0f48e750505e208354a8a2d6f7d3c12882f40519189852e92050aca",
+            '"name": "command_exact"',
+            '"passed": true',
+            '"reward": 1.0',
+            "The application validates recorded evidence; it does not execute customer code.",
+        ):
+            self.assertIn(phrase, text)
+
+        self.assertIn("index.html", parser.links)
+        self.assertIn(TEAM_CHECKOUT_URL, parser.links)
+        self.assertIn("styles.css?v=walkthrough-1", parser.links)
+        self.assertEqual([], parser.scripts)
+        self.assertNotIn("<iframe", source.lower())
 
     def test_policy_pages_cover_software_license_and_supported_payment_processors(self):
         expectations = {

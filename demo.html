@@ -1,0 +1,169 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta
+      name="description"
+      content="Exact Agent Eval Kit 1.0.0 contract, evidence, commands, seal, and deterministic evaluation output."
+    />
+    <title>Agent Eval Kit 1.0.0 Walkthrough</title>
+    <link rel="stylesheet" href="styles.css?v=walkthrough-1" />
+  </head>
+  <body>
+    <header class="shell site-header">
+      <a class="brand" href="index.html">Agent Eval Kit</a>
+      <nav aria-label="Demo navigation">
+        <a href="product-manifest.json">Release manifest</a>
+        <a href="terms.html">Terms</a>
+      </nav>
+    </header>
+
+    <main class="shell demo-page">
+      <a class="back-link" href="index.html">← Back to licenses</a>
+      <p class="eyebrow">Exact Version 1.0.0 walkthrough</p>
+      <h1>Inspect the complete deterministic decision before buying.</h1>
+      <p class="lede">
+        The following contract, evidence, commands, seal, and evaluation result come from the reproducible
+        <strong>agent-eval-kit-1.0.0.pyz</strong> release. The values are published so a buyer can review the
+        product boundary without a sales call.
+      </p>
+
+      <h2>1. Versioned task contract</h2>
+      <p>The contract pins the task, repository commit, exact test command, required checks, and fixture outcomes.</p>
+      <pre class="code-panel"><code>{
+  "fixture_expectations": [
+    {
+      "expected_exit_code": 0,
+      "name": "valid-submission",
+      "path": "fixtures/valid.json"
+    },
+    {
+      "expected_exit_code": 1,
+      "name": "price-tampering",
+      "path": "fixtures/price-tampering.json"
+    }
+  ],
+  "immutable_invariants": [
+    "Preserve every ID",
+    "Do not change prices"
+  ],
+  "repository_commit": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+  "repository_url": "https://github.com/example/catalog",
+  "required_checks": [
+    "schema_exact",
+    "business_facts_preserved"
+  ],
+  "schema_version": "1.0",
+  "task_id": "catalog-normalization",
+  "test_command": [
+    "python3",
+    "-m",
+    "unittest",
+    "discover"
+  ]
+}</code></pre>
+
+      <h2>2. Validate and seal</h2>
+      <pre class="code-panel"><code>python3 agent-eval-kit-1.0.0.pyz validate contract.json</code></pre>
+      <pre class="code-panel"><code>{
+  "contract_sha256": "fac5f172f0f48e750505e208354a8a2d6f7d3c12882f40519189852e92050aca",
+  "schema_version": "1.0",
+  "task_id": "catalog-normalization",
+  "valid": true
+}</code></pre>
+
+      <h2>3. Recorded evidence</h2>
+      <p>The caller runs its own tests and records only the pinned commit, command, exit code, and declared checks.</p>
+      <pre class="code-panel"><code>{
+  "checks": {
+    "business_facts_preserved": true,
+    "schema_exact": true
+  },
+  "executed_command": [
+    "python3",
+    "-m",
+    "unittest",
+    "discover"
+  ],
+  "exit_code": 0,
+  "repository_commit": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+  "schema_version": "1.0",
+  "task_id": "catalog-normalization"
+}</code></pre>
+
+      <h2>4. Evaluate offline</h2>
+      <pre class="code-panel"><code>python3 agent-eval-kit-1.0.0.pyz evaluate contract.json passing-evidence.json</code></pre>
+      <pre class="code-panel"><code>{
+  "checks": [
+    {
+      "detail": "Evidence uses only the declared 1.0 fields.",
+      "name": "evidence_schema_exact",
+      "passed": true
+    },
+    {
+      "detail": "Evidence schema version matches the product contract.",
+      "name": "schema_version_exact",
+      "passed": true
+    },
+    {
+      "detail": "Evidence belongs to the sealed task.",
+      "name": "task_id_exact",
+      "passed": true
+    },
+    {
+      "detail": "Evidence uses the pinned repository commit.",
+      "name": "repository_commit_pinned",
+      "passed": true
+    },
+    {
+      "detail": "The recorded command exactly matches the contract.",
+      "name": "command_exact",
+      "passed": true
+    },
+    {
+      "detail": "The recorded command completed successfully.",
+      "name": "exit_code_zero",
+      "passed": true
+    },
+    {
+      "detail": "No required check is missing and no self-awarded check is present.",
+      "name": "check_schema_exact",
+      "passed": true
+    },
+    {
+      "detail": "Every declared required check passed.",
+      "name": "required_checks_passed",
+      "passed": true
+    }
+  ],
+  "contract_sha256": "fac5f172f0f48e750505e208354a8a2d6f7d3c12882f40519189852e92050aca",
+  "passed": true,
+  "reward": 1.0,
+  "schema_version": "1.0",
+  "task_id": "catalog-normalization"
+}</code></pre>
+
+      <div class="demo-callout">
+        <h2>Trust boundary</h2>
+        <p>The application validates recorded evidence; it does not execute customer code.</p>
+        <p>
+          A changed commit, substituted command, failed or missing check, extra self-awarded check, malformed JSON,
+          or nonzero exit code produces a structured failure and a nonzero process exit.
+        </p>
+      </div>
+
+      <div class="actions">
+        <a class="button button-primary" href="https://www.paypal.com/ncp/payment/2SHM4XZQ8BVE2"
+          >Buy the Team License · USD 1,000</a
+        >
+        <a class="text-link" href="index.html">Review license scope and delivery →</a>
+      </div>
+    </main>
+
+    <footer class="shell site-footer">
+      <span>© 2026 Muyeong Yun · Seoul, South Korea</span>
+      <a href="mailto:andudyun0504@gmail.com">andudyun0504@gmail.com</a>
+    </footer>
+  </body>
+</html>

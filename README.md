@@ -6,6 +6,8 @@ The site intentionally uses only static HTML and CSS. It has no package-manager 
 
 The product source, tests, and standalone build are maintained separately from this public sales repository. The public `product-manifest.json` records the exact release name and SHA-256 without exposing the paid archive.
 
+`demo.html` publishes a copyable Version 1.0.0 walkthrough generated from the reproducible release artifact: the example contract and evidence, the two exact CLI commands, the stable contract seal, all eight deterministic checks, and the final pass/reward fields. Keep it synchronized with the product examples and actual built output; do not hand-edit result values without rerunning the release archive.
+
 ## Verify the Team checkout
 
 The exact Team checkout URL is pinned in `tests/test_site.py`. Before publishing a URL change, verify the PayPal-hosted page directly:
@@ -25,3 +27,5 @@ python3 -m unittest discover -s tests -v
 ```
 
 Also run `git diff --check` before publishing.
+
+When the demo changes, rebuild the product in its required `build/` directory and run both public commands before running the site tests. Confirm the demo's seal and evaluation result match that output exactly.

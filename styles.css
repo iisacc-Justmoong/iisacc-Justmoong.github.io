@@ -133,7 +133,8 @@ h3 {
 .service-card,
 .evidence-panel,
 .start-gate,
-.policy-page {
+.policy-page,
+.demo-page {
   border: 1px solid #d0c8b8;
   border-radius: 24px;
   background: rgba(255, 255, 255, 0.7);
@@ -247,6 +248,43 @@ ul {
 .policy-page h2 {
   margin-top: 40px;
   font-size: clamp(1.4rem, 3vw, 2rem);
+}
+
+.demo-page {
+  max-width: 920px;
+  margin-block: 40px;
+  padding: clamp(28px, 7vw, 72px);
+}
+
+.demo-page h1 {
+  max-width: 760px;
+  font-size: clamp(2.8rem, 7vw, 5.4rem);
+}
+
+.demo-page h2 {
+  margin-top: 48px;
+  font-size: clamp(1.5rem, 3vw, 2.2rem);
+}
+
+.code-panel {
+  max-width: 100%;
+  margin: 18px 0;
+  border: 1px solid #d0c8b8;
+  border-radius: 16px;
+  padding: 18px;
+  overflow-x: auto;
+  background: #1f201b;
+  color: #f7f2e8;
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+  font-size: 0.86rem;
+  line-height: 1.55;
+  white-space: pre;
+}
+
+.demo-callout {
+  margin-top: 40px;
+  border-left: 4px solid #df6c3a;
+  padding: 4px 0 4px 20px;
 }
 
 .back-link {
